@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mi Calendario de Ahorros — Tomorrowland Core 2026</title>
+<meta name="description" content="Plantilla de calendario de ahorros editable para reunir $2.300.000 COP en 17 semanas.">
+<style>
+  :root{
+    --verde-osc:#0F6B63;
+    --verde-claro:#18B69A;
+    --accent:#FFD24A;
+    --fondo:#F6FBFA;
+    --text:#063A35;
+    --card:#ffffff;
+    --radius:18px;
+    --shadow: 0 6px 18px rgba(3,38,36,0.08);
+    --glass: rgba(15,107,99,0.06);
+    --max-width:1100px;
+    --gap:16px;
+    --glass-2: rgba(24,182,154,0.06);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:linear-gradient(180deg,#ffffff 0%, #f9fdfa 100%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px;
+  }
+
+  .app{
+    width:100%;
+    max-width:var(--max-width);
+    background:var(--card);
+    border-radius:calc(var(--radius) + 6px);
+    padding:24px;
+    box-shadow:var(--shadow);
+    border:4px solid var(--glass);
+  }
+
+  header{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .title{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .logo{
+    width:66px;height:66px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--verde-claro),var(--verde-osc));
+    color:white;font-weight:700;font-size:20px;
+    box-shadow:0 6px 18px rgba(24,182,154,0.14);
+  }
+  h1{font-size:20px;margin:0}
+  p.lead{margin:4px 0 0 0;color:rgba(6,58,53,0.75);font-size:13px}
+
+  .controls{display:flex;gap:8px;align-items:center}
+  button, .btn{
+    background:var(--verde-osc);
+    border:0;color:white;padding:10px 12px;border-radius:10px;
+    cursor:pointer;font-weight:600;font-size:13px;
+    box-shadow:0 6px 14px rgba(15,107,99,0.12);
+  }
+  .btn.secondary{background:transparent;color:var(--verde-osc);border:1px solid var(--glass-2)}
+  .btn.ghost{background:transparent;color:var(--verde-osc);border:0;box-shadow:none}
+
+  .top-row{
+    display:grid;grid-template-columns:1fr 360px;gap:18px;margin-bottom:18px;
+  }
+
+  /* Card meta */
+  .card{
+    background:linear-gradient(180deg,var(--fondo),#ffffff);
+    border-radius:14px;padding:18px;border:1px solid var(--glass);
+    display:flex;gap:16px;align-items:center;
+  }
+  .meta-left{flex:1}
+  .meta-right{width:220px;text-align:center}
+  .pig{
+    width:80px;height:80px;border-radius:12px;background:linear-gradient(180deg,#fff,#f1fff8);
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--glass);
+  }
+  .meta-value{font-size:20px;font-weight:700;color:var(--verde-osc)}
+  .meta-sub{font-size:13px;color:rgba(6,58,53,0.75)}
+
+  /* progress */
+  .progress-wrap{margin-top:12px}
+  .progress-bar{
+    height:14px;border-radius:10px;background:#e9f6f2;border:1px solid var(--glass);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;background:linear-gradient(90deg,var(--verde-claro),var(--verde-osc));
+    transition:width 700ms ease;
+  }
+  .progress-info{display:flex;justify-content:space-between;margin-top:6px;font-size:13px;color:rgba(6,58,53,0.7)}
+
+  /* week grid */
+  .grid{
+    margin-top:12px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+  @media (max-width:960px){ .top-row{grid-template-columns:1fr} .grid{grid-template-columns:repeat(2,1fr)} .meta-right{width:200px} }
+  @media (max-width:560px){ .grid{grid-template-columns:repeat(1,1fr)} header{flex-direction:column;align-items:flex-start} }
+
+  .tile{
+    background:linear-gradient(180deg,#ffffff,#fcfffe);
+    border-radius:12px;padding:12px;border:1px solid var(--glass);
+    display:flex;flex-direction:column;gap:10px;min-height:92px;
+  }
+  .tile .top{display:flex;justify-content:space-between;align-items:center}
+  .week-number{font-weight:700;color:var(--verde-osc)}
+  .week-target{font-size:13px;color:rgba(6,58,53,0.7)}
+  .tile .amount{font-weight:700;font-size:16px;color:var(--verde-osc)}
+  .tile .status{font-size:12px;color:rgba(6,58,53,0.6)}
+  .tile button{padding:6px 8px;border-radius:8px;font-size:13px}
+
+  .tile.completed{border:2px solid rgba(24,182,154,0.18);box-shadow:0 6px 14px rgba(24,182,154,0.06)}
+  .tile.partial{border:2px dashed rgba(15,107,99,0.06)}
+
+  .sidebar{
+    background:linear-gradient(180deg,#ffffff,#f8fffb);
+    border-radius:12px;padding:14px;border:1px solid var(--glass);
+    display:flex;flex-direction:column;gap:12px;height:100%;
+  }
+  .sidebar h3{margin:0;font-size:15px;color:var(--verde-osc)}
+  .input, input, select{width:100%;padding:10px;border-radius:10px;border:1px solid #E6F2EE;font-size:14px}
+  .small{font-size:13px;color:rgba(6,58,53,0.7)}
+
+  footer{margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .motivations{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(2,21,20,0.35);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal{background:white;border-radius:12px;padding:18px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(6,58,53,0.16)}
+  .modal h4{margin:0 0 6px 0}
+  .modal .row{display:flex;gap:8px;align-items:center}
+  .modal .row input{flex:1}
+
+  .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+  .muted{color:rgba(6,58,53,0.6);font-size:13px}
+  .small-note{font-size:12px;color:rgba(6,58,53,0.55)}
+
+  /* helper */
+  .flex{display:flex;gap:8px;align-items:center}
+  .badge{background:var(--accent);padding:6px 8px;border-radius:8px;font-weight:700;color:#2b2b2b}
+  .export-area{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Calendario de Ahorros Tomorrowland">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true">TLD</div>
+        <div>
+          <h1>Mi Calendario de Ahorros — Tomorrowland Core 2026</h1>
+          <p class="lead">Meta: <strong id="meta-total-display">$2.300.000</strong> · Fecha límite: <strong id="meta-deadline">14 feb 2026</strong></p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="btn-edit-meta" title="Editar meta">Editar meta</button>
+        <button class="btn secondary" id="btn-export-json" title="Exportar progreso">Exportar JSON</button>
+        <button class="btn ghost" id="btn-reset" title="Resetear">Resetear</button>
+      </div>
+    </header>
+
+    <div class="top-row">
+      <div>
+        <div class="card">
+          <div class="meta-left">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="flex:1">
+                <div class="meta-value" id="meta-accumulated">$0</div>
+                <div class="meta-sub">Acumulado · <span id="meta-percent">0%</span></div>
+              </div>
+              <div class="meta-right">
+                <div class="pig" aria-hidden="true">
+                  <!-- pig svg -->
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M20 13c0 3-3 5-7 5s-7-2-7-5 3-5 7-5 7 2 7 5z" fill="currentColor" opacity="0.18"></path>
+                    <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+                    <path d="M7 10s-1.5-1.5-2-1c-.5.5 0 1 0 1" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-bar" aria-hidden="true">
+                <div class="progress-fill" id="progress-fill"></div>
+              </div>
+              <div class="progress-info">
+                <div class="muted">Objetivo semanal sugerido</div>
+                <div class="muted" id="weekly-suggested">$135.300</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid" id="weeks-grid" aria-live="polite" style="margin-top:12px">
+          <!-- Tiles generadas por JS -->
+        </div>
+      </div>
+
+      <aside class="sidebar" aria-label="Panel lateral">
+        <h3>Detalles de la meta</h3>
+        <div class="small">Meta total</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input id="input-meta" class="input" type="number" min="0" step="1000" value="2300000" aria-label="Meta total en pesos">
+        </div>
+        <div class="small" style="margin-top:8px">Semanas</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input id="input-weeks" class="input" type="number" min="1" step="1" value="17" aria-label="Número de semanas">
+        </div>
+
+        <div style="margin-top:8px">
+          <div class="small">Fecha límite</div>
+          <input id="input-deadline" class="input" type="date" value="2026-02-14" />
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">Frases motivadoras</div>
+          <textarea id="motivation-text" rows="4" class="input small-note">Cada semana me acerco al escenario de mis sueños.\nAhorro hoy, bailo en febrero.\nPequeñas cuotas, grandes recuerdos.</textarea>
+        </div>
+
+        <div style="margin-top:8px">
+          <div class="small">Acciones</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="btn-fill-standard">Aportar estándar (siguiente)</button>
+            <button class="btn secondary" id="btn-export-image">Imprimir/Exportar</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <div class="motivations small-note" id="motivations-preview">
+        <!-- frases -->
+      </div>
+
+      <div class="export-area">
+        <div class="small-note">Pro tip: los cambios se guardan en tu navegador.</div>
+      </div>
+    </footer>
+
+    <!-- modal -->
+    <div class="modal-back" id="modal-back" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal" role="document" aria-labelledby="modal-title">
+        <h4 id="modal-title">Registrar aporte — Semana <span id="modal-week-num"></span></h4>
+        <div class="small-note" id="modal-week-sub">Meta semanal sugerida: <strong id="modal-week-suggested"></strong></div>
+        <div style="height:12px"></div>
+        <div class="row">
+          <input id="modal-amount" type="number" placeholder="Monto aportado (ej. 135300)" />
+        </div>
+        <div class="actions">
+          <button class="btn secondary" id="modal-cancel">Cancelar</button>
+          <button class="btn" id="modal-save">Guardar aporte</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/*
+  Plantilla: Calendario de Ahorros
+  Defaults:
+    - Meta total: 2_300_000 COP
+    - Semanas: 17
+    - Sugerido semanal = ceil(meta / semanas)
+  Guardado de estado en localStorage bajo clave 'calendarioTomorrowland_v1'
+*/
+
+(function(){
+  "use strict";
+
+  // Utilidades
+  const fmt = n => {
+    // formatea números a COP: 1.234.567
+    if (typeof n !== 'number') n = Number(n) || 0;
+    return n.toLocaleString('es-CO', {maximumFractionDigits:0});
+  };
+
+  // Estado inicial
+  const DEFAULT = {
+    total: 2300000,
+    weeks: 17,
+    deadline: "2026-02-14",
+    weeksData: [], // {week:1, saved:0}
+    motivations: [
+      "Cada semana me acerco al escenario de mis sueños.",
+      "Ahorro hoy, bailo en febrero.",
+      "Pequeñas cuotas, grandes recuerdos."
+    ]
+  };
+
+  const STORAGE_KEY = 'calendarioTomorrowland_v1';
+
+  // DOM references
+  const metaTotalDisplay = document.getElementById('meta-total-display');
+  const metaAccumulated = document.getElementById('meta-accumulated');
+  const metaPercent = document.getElementById('meta-percent');
+  const progressFill = document.getElementById('progress-fill');
+  const weeklySuggestedDisplay = document.getElementById('weekly-suggested');
+  const weeksGrid = document.getElementById('weeks-grid');
+  const inputMeta = document.getElementById('input-meta');
+  const inputWeeks = document.getElementById('input-weeks');
+  const inputDeadline = document.getElementById('input-deadline');
+  const motivationText = document.getElementById('motivation-text');
+  const motivationsPreview = document.getElementById('motivations-preview');
+  const btnExportJSON = document.getElementById('btn-export-json');
+  const btnReset = document.getElementById('btn-reset');
+  const btnEditMeta = document.getElementById('btn-edit-meta');
+  const btnFillStandard = document.getElementById('btn-fill-standard');
+  const btnExportImage = document.getElementById('btn-export-image');
+
+  const modalBack = document.getElementById('modal-back');
+  const modalWeekNum = document.getElementById('modal-week-num');
+  const modalWeekSuggested = document.getElementById('modal-week-suggested');
+  const modalAmount = document.getElementById('modal-amount');
+  const modalSave = document.getElementById('modal-save');
+  const modalCancel = document.getElementById('modal-cancel');
+
+  // load/save state
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return structuredClone(DEFAULT);
+      const parsed = JSON.parse(raw);
+      // ensure fields
+      if(!parsed.weeksData || parsed.weeksData.length === 0){
+        parsed.weeksData = Array.from({length: parsed.weeks || DEFAULT.weeks}, (_,i) => ({week:i+1, saved:0}));
+      }
+      return parsed;
+    }catch(e){
+      console.warn('error al leer storage', e);
+      return structuredClone(DEFAULT);
+    }
+  }
+
+  function saveState(s){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    }catch(e){
+      console.warn('no se pudo guardar', e);
+    }
+  }
+
+  // generate grid
+  let state = loadState();
+
+  function ensureWeeksData(){
+    const w = Number(state.weeks) || DEFAULT.weeks;
+    if(!state.weeksData || state.weeksData.length !== w){
+      // rebuild: preserve saved for existing indices
+      const newArr = Array.from({length:w}, (_,i) => {
+        const prev = (state.weeksData && state.weeksData[i]) ? state.weeksData[i].saved : 0;
+        return {week:i+1, saved: prev || 0};
+      });
+      state.weeksData = newArr;
+    }
+  }
+
+  function suggestedWeekly(){
+    const total = Number(state.total) || DEFAULT.total;
+    const weeks = Number(state.weeks) || DEFAULT.weeks;
+    // ceil para asegurar que llegues a la meta
+    return Math.ceil(total / weeks);
+  }
+
+  function updateMetaUI(){
+    metaTotalDisplay.textContent = '$' + fmt(Number(state.total || 0));
+    document.getElementById('meta-deadline').textContent = state.deadline || DEFAULT.deadline;
+    weeklySuggestedDisplay.textContent = '$' + fmt(suggestedWeekly());
+    inputMeta.value = Number(state.total || 0);
+    inputWeeks.value = Number(state.weeks || 0);
+    inputDeadline.value = state.deadline || DEFAULT.deadline;
+    motivationText.value = (state.motivations || DEFAULT.motivations).join('\\n');
+    motivationsPreview.innerHTML = '';
+    (state.motivations || DEFAULT.motivations).forEach(m => {
+      const el = document.createElement('div');
+      el.textContent = '• ' + m;
+      motivationsPreview.appendChild(el);
+    });
+  }
+
+  function computeProgress(){
+    const totalSaved = state.weeksData.reduce((s,w) => s + Number(w.saved || 0), 0);
+    const total = Number(state.total || 1);
+    const percent = Math.min(100, Math.round((totalSaved / total) * 100));
+    return {totalSaved, percent};
+  }
+
+  function renderGrid(){
+    ensureWeeksData();
+    weeksGrid.innerHTML = '';
+    const suggested = suggestedWeekly();
+    state.weeksData.forEach(w => {
+      const tile = document.createElement('article');
+      tile.className = 'tile';
+      if(Number(w.saved || 0) >= suggested) tile.classList.add('completed');
+      else if(Number(w.saved || 0) > 0) tile.classList.add('partial');
+
+      tile.innerHTML = `
+        <div class="top">
+          <div>
+            <div class="week-number">Semana ${w.week}</div>
+            <div class="week-target">Objetivo: $${fmt(suggested)}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="amount">$${fmt(Number(w.saved || 0))}</div>
+            <div class="status">${Number(w.saved || 0) === 0 ? 'Sin aporte' : (Number(w.saved) >= suggested ? 'Completada' : 'Parcial')}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+          <div class="small-note">${w.saved > 0 ? 'Último aporte registrado' : ''}</div>
+          <div>
+            <button class="btn secondary btn-edit-week" data-week="${w.week}">Registrar</button>
+            <button class="btn btn-delete-week btn-quick" data-week="${w.week}" style="background:#ff5b5b">Borrar</button>
+          </div>
+        </div>
+      `;
+      weeksGrid.appendChild(tile);
+    });
+
+    // actualizar acumulado y progreso
+    const {totalSaved, percent} = computeProgress();
+    metaAccumulated.textContent = '$' + fmt(totalSaved);
+    metaPercent.textContent = percent + '%';
+    progressFill.style.width = percent + '%';
+  }
+
+  // open modal for week
+  let _currentWeek = null;
+  function openModalForWeek(week){
+    _currentWeek = Number(week);
+    const suggested = suggestedWeekly();
+    modalWeekNum.textContent = _currentWeek;
+    modalWeekSuggested.textContent = '$' + fmt(suggested);
+    const existing = (state.weeksData[_currentWeek-1] && state.weeksData[_currentWeek-1].saved) || 0;
+    modalAmount.value = existing > 0 ? existing : suggested;
+    modalBack.style.display = 'flex';
+    modalBack.setAttribute('aria-hidden','false');
+    setTimeout(()=> modalAmount.focus(), 120);
+  }
+  function closeModal(){
+    modalBack.style.display = 'none';
+    modalBack.setAttribute('aria-hidden','true');
+    _currentWeek = null;
+  }
+
+  // events
+  document.addEventListener('click', e => {
+    if(e.target.matches('.btn-edit-week')) {
+      openModalForWeek(e.target.dataset.week);
+    }
+    if(e.target.matches('.btn-delete-week')) {
+      const wk = Number(e.target.dataset.week);
+      if(confirm('¿Borrar aporte guardado para la semana ' + wk + '?')) {
+        state.weeksData[wk-1].saved = 0;
+        saveState(state);
+        renderGrid();
+      }
+    }
+  });
+
+  modalCancel.addEventListener('click', closeModal);
+  modalBack.addEventListener('click', (ev) => {
+    if(ev.target === modalBack) closeModal();
+  });
+
+  modalSave.addEventListener('click', () => {
+    const val = Number(modalAmount.value || 0);
+    if(isNaN(val) || val < 0){ alert('Ingrese un monto válido'); return; }
+    if(!_currentWeek) return;
+    state.weeksData[_currentWeek-1].saved = Math.round(val);
+    saveState(state);
+    renderGrid();
+    closeModal();
+  });
+
+  // Edit meta / weeks changes
+  btnEditMeta.addEventListener('click', () => {
+    // focus inputs (UI already shows inputs)
+    inputMeta.focus();
+  });
+
+  inputMeta.addEventListener('change', () => {
+    state.total = Math.max(0, Number(inputMeta.value) || 0);
+    // recalc suggested weeks but do not change existing saved values
+    saveState(state);
+    updateMetaUI();
+    renderGrid();
+  });
+
+  inputWeeks.addEventListener('change', () => {
+    const newWeeks = Math.max(1, Math.round(Number(inputWeeks.value) || 1));
+    state.weeks = newWeeks;
+    ensureWeeksData();
+    saveState(state);
+    updateMetaUI();
+    renderGrid();
+  });
+
+  inputDeadline.addEventListener('change', () => {
+    state.deadline = inputDeadline.value;
+    saveState(state);
+    document.getElementById('meta-deadline').textContent = state.deadline;
+  });
+
+  motivationText.addEventListener('change', () => {
+    const lines = motivationText.value.split('\\n').map(s => s.trim()).filter(Boolean);
+    state.motivations = lines;
+    saveState(state);
+    updateMetaUI();
+  });
+
+  // export JSON
+  btnExportJSON.addEventListener('click', () => {
+    const payload = {
+      meta: { total: state.total, weeks: state.weeks, deadline: state.deadline },
+      weeks: state.weeksData,
+      motivations: state.motivations
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'calendario_ahorro_tomorrowland.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // quick reset
+  btnReset.addEventListener('click', () => {
+    if(!confirm('¿Seguro quieres resetear todo el calendario? Esto borrará los aportes guardados.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    state = structuredClone(DEFAULT);
+    ensureWeeksData();
+    saveState(state);
+    updateMetaUI();
+    renderGrid();
+  });
+
+  // fill standard: marca la siguiente semana sin aporte con el sugerido semanal
+  btnFillStandard.addEventListener('click', () => {
+    const suggested = suggestedWeekly();
+    const idx = state.weeksData.findIndex(w=> Number(w.saved||0) === 0);
+    if(idx === -1){ alert('Todas las semanas tienen aportes.'); return; }
+    state.weeksData[idx].saved = suggested;
+    saveState(state);
+    renderGrid();
+  });
+
+  // quick export page print
+  btnExportImage.addEventListener('click', () => {
+    // abre diálogo de impresión (puedes guardar como PDF desde el navegador)
+    window.print();
+  });
+
+  // keyboard shortcut: N para nuevo registro rápido (abre primer sin aporte)
+  document.addEventListener('keydown', (e) => {
+    if(e.key.toLowerCase() === 'n'){
+      const idx = state.weeksData.findIndex(w=> Number(w.saved||0) === 0);
+      if(idx === -1) return;
+      openModalForWeek(idx+1);
+    }
+  });
+
+  // initialization
+  function init(){
+    // ensure weeks data size
+    if(!state.weeksData || state.weeksData.length === 0){
+      state.weeksData = Array.from({length: state.weeks || DEFAULT.weeks}, (_,i) => ({week:i+1, saved:0}));
+      saveState(state);
+    } else {
+      ensureWeeksData();
+    }
+    updateMetaUI();
+    renderGrid();
+  }
+
+  init();
+
+  // explain values for el usuario (console)
+  console.info('Plantilla cargada — Meta:', state.total, 'Semanas:', state.weeks);
+  console.info('Sugerido semanal (ceil):', suggestedWeekly());
+
+})();
+</script>
+</body>
+</html>
